@@ -4,8 +4,11 @@ import time
 import os
 import random
 
+# WIN_WIDTH = 500
+# WIN_HEIGHT = 900
+
 WIN_WIDTH = 500
-WIN_HEIGHT = 750
+WIN_HEIGHT = 800
 
 BIRDS_IMGS = [pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird1.png"))),
               pygame.transform.scale2x(pygame.image.load(os.path.join("imgs", "bird2.png"))),
@@ -110,7 +113,7 @@ class Pipe:
         win.blit(self.PIPE_TOP, (self.x, self.top))
         win.blit(self.PIPE_BOTTOM, (self.x, self.bottom))
 
-    def collide(self, bird, win):
+    def collide(self, bird):
         bird_mask = bird.get_mask()
         top_mask = pygame.mask.from_surface(self.PIPE_TOP)
         bottom_mask = pygame.mask.from_surface(self.PIPE_BOTTOM)
@@ -165,7 +168,11 @@ def draw_window(win, bird, pipes, base):
 
 if __name__ == '__main__':
     bird = Bird(230, 350)
-    win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+    base = Base(730)
+    pipes = [Pipe(700)]
+    score = 0
+
+    win = pygame.display.set_mode((WIN_WIDTH, 800))
     clock = pygame.time.Clock()
 
     run = True
@@ -175,8 +182,31 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 run = False
 
-        bird.move()
-        draw_window(win, bird)
+        # bird.move()
+        add_pipe = False
+        rem = []
+        for pipe in pipes:
+            if pipe.collide(bird):
+                pass
+
+            if pipe.x + pipe.PIPE_TOP.get_width() < 0:
+                rem.append(pipe)
+
+            if not pipe.passed and pipe.x < bird.x:
+                pipe.passed = True
+                add_pipe = True
+
+            pipe.move()
+
+        if add_pipe:
+            score += 1
+            pipes.append(Pipe(700))
+
+        for r in rem:
+            pipes.remove(r)
+
+        base.move()
+        draw_window(win, bird, pipes, base)
 
     pygame.quit()
     quit()
