@@ -172,8 +172,17 @@ def draw_window(win, bird, pipes, base, score):
     pygame.display.update()
 
 
-if __name__ == '__main__':
-    bird = Bird(230, 350)
+def main(genomes, config):
+    birds = []
+    nets = []
+    ge = []
+
+    for g in genomes:
+        nets.append(neat.nn.FeedForwardNetwork())
+        birds.append(Bird(230,350))
+        g.fitness = 0
+        ge.append(g)
+
     base = Base(730)
     pipes = [Pipe(700)]
     score = 0
@@ -188,21 +197,22 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 run = False
 
-        bird.move()
-        bird.jump()
+        # bird.move()
+        # bird.jump()
 
         add_pipe = False
         rem = []
         for pipe in pipes:
-            if pipe.collide(bird):
-                pass
+            for bird in birds:
+                if pipe.collide(bird):
+                    pass
+
+                if not pipe.passed and pipe.x < bird.x:
+                    pipe.passed = True
+                    add_pipe = True
 
             if pipe.x + pipe.PIPE_TOP.get_width() < 0:
                 rem.append(pipe)
-
-            if not pipe.passed and pipe.x < bird.x:
-                pipe.passed = True
-                add_pipe = True
 
             pipe.move()
 
@@ -213,11 +223,34 @@ if __name__ == '__main__':
         for r in rem:
             pipes.remove(r)
 
-        if bird.y + bird.img.get_height() >= 730:
-            pass
+        for bird in birds:
+            if bird.y + bird.img.get_height() >= 730:
+                pass
 
         base.move()
         draw_window(win, bird, pipes, base, score)
 
     pygame.quit()
     quit()
+
+main()
+
+
+def run(config_path):
+    config = neat.config.Config(neat.DefaultGenome, neat.DefaultReproduction,
+                                neat.DefaultSpeciesSet, neat.DefaultStagnation, config_path)
+
+    p = neat.Population(config)
+
+    p.add_reporter(neat.StdOutReporter(True))
+    stats = neat.StatisticsReporter()
+    p.add_reporter(stats)
+
+    winner = p.run(main, 50)
+
+
+if __name__ == '__main__':
+    local_dir = os.path.dirname(__file__)
+    config_path = os.path.join(local_dir, "config-neat.txt")
+    run(config_path)
+
