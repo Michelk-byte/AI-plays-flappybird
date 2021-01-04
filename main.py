@@ -188,7 +188,9 @@ if __name__ == '__main__':
             if event.type == pygame.QUIT:
                 run = False
 
-        # bird.move()
+        bird.move()
+        bird.jump()
+
         add_pipe = False
         rem = []
         for pipe in pipes:
