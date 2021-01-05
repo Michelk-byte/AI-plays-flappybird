@@ -11,8 +11,5 @@ def draw_window(win, birds, pipes, base, score):
     win.blit(text, (WIN_WIDTH - 10 - text.get_width(), 10))
 
     base.draw(win)
-
-    for bird in birds:
-        bird.draw(win)
-
+    birds.draw(win)
     pygame.display.update()
